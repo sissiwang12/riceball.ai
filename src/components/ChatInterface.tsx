@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
 import { Send, Bot, User } from 'lucide-react';
+import { sendMessageToOpenAI } from '@/lib/openai';
 
 interface Message {
   id: string;
@@ -27,6 +28,7 @@ const ChatInterface = ({ onNewEntry }: ChatInterfaceProps) => {
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -36,22 +38,6 @@ const ChatInterface = ({ onNewEntry }: ChatInterfaceProps) => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
-  const generateAIResponse = (userMessage: string): string => {
-    // Simple AI simulation - in production, this would connect to ChatGPT API
-    const responses = [
-      "I hear you. It sounds like you're dealing with a lot right now. Can you tell me more about what's making you feel this way?",
-      "That's a very valid feeling. Many people experience similar emotions. What do you think might help you feel more balanced?",
-      "I appreciate you sharing that with me. It takes courage to be vulnerable. How has this been affecting your daily life?",
-      "It sounds like you're being really hard on yourself. What would you say to a friend who was going through the same thing?",
-      "I can sense the strength in your words, even when you're struggling. What small step could you take today to care for yourself?",
-      "Thank you for trusting me with this. Your feelings are completely valid. What has helped you cope with similar situations before?",
-      "I notice you mentioned feeling overwhelmed. Let's break this down together. What feels most manageable to address first?",
-      "You're showing real self-awareness by recognizing these patterns. How do you think you've grown since the last time you felt this way?"
-    ];
-    
-    return responses[Math.floor(Math.random() * responses.length)];
-  };
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -66,23 +52,28 @@ const ChatInterface = ({ onNewEntry }: ChatInterfaceProps) => {
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsTyping(true);
+    setError(null);
 
-    // Simulate AI thinking time
-    setTimeout(() => {
+    try {
+      const chatHistory = [
+        ...messages.map(m => ({ role: m.sender === 'user' ? 'user' : 'assistant', content: m.text })),
+        { role: 'user', content: input }
+      ];
+      const aiText = await sendMessageToOpenAI(chatHistory);
       const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
-        text: generateAIResponse(input),
+        text: aiText,
         sender: 'ai',
         timestamp: new Date()
       };
-
       setMessages(prev => [...prev, aiResponse]);
       setIsTyping(false);
-
-      // Create journal entry from conversation
       const conversationContent = `${input}\n\nTherapist Response: ${aiResponse.text}`;
-      onNewEntry(conversationContent, 5); // Default mood of 5, you can add mood selection
-    }, 1500);
+      onNewEntry(conversationContent, 5);
+    } catch (err: any) {
+      setIsTyping(false);
+      setError(err.message || 'Something went wrong.');
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -139,6 +130,11 @@ const ChatInterface = ({ onNewEntry }: ChatInterfaceProps) => {
                 </div>
               </div>
             </div>
+          </div>
+        )}
+        {error && (
+          <div className="px-4 py-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded mb-2">
+            {error}
           </div>
         )}
         <div ref={messagesEndRef} />
