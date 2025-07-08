@@ -27,9 +27,10 @@ const Index = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
-            AI Therapy Journal
+            Riceball AI
           </h1>
-          <p className="text-gray-600 text-lg">Your personal space for growth, reflection, and healing</p>
+          <p className="text-gray-600 text-lg mb-1">Your personal therapist and digital diary.</p>
+          <p className="text-gray-500 text-sm">This is your space for growth, reflection, and healing.</p>
         </div>
 
         {/* Mood Tracker */}

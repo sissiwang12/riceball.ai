@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
-import { Send, Bot, User } from 'lucide-react';
+import { Send, User } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -20,7 +20,7 @@ const ChatInterface = ({ onNewEntry }: ChatInterfaceProps) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hello! I'm here to listen and support you. How are you feeling today? What's on your mind?",
+      text: "Hi there! I'm Riceball, your personal therapist. I'm here to listen, support you, and help you reflect on your thoughts and feelings. How are you doing today? What's on your mind?",
       sender: 'ai',
       timestamp: new Date()
     }
@@ -38,16 +38,18 @@ const ChatInterface = ({ onNewEntry }: ChatInterfaceProps) => {
   }, [messages]);
 
   const generateAIResponse = (userMessage: string): string => {
-    // Simple AI simulation - in production, this would connect to ChatGPT API
+    // Enhanced AI responses with more therapeutic and caring tone
     const responses = [
-      "I hear you. It sounds like you're dealing with a lot right now. Can you tell me more about what's making you feel this way?",
-      "That's a very valid feeling. Many people experience similar emotions. What do you think might help you feel more balanced?",
-      "I appreciate you sharing that with me. It takes courage to be vulnerable. How has this been affecting your daily life?",
-      "It sounds like you're being really hard on yourself. What would you say to a friend who was going through the same thing?",
-      "I can sense the strength in your words, even when you're struggling. What small step could you take today to care for yourself?",
-      "Thank you for trusting me with this. Your feelings are completely valid. What has helped you cope with similar situations before?",
-      "I notice you mentioned feeling overwhelmed. Let's break this down together. What feels most manageable to address first?",
-      "You're showing real self-awareness by recognizing these patterns. How do you think you've grown since the last time you felt this way?"
+      "I hear you, and I want you to know that what you're feeling is completely valid. Can you tell me more about what's been weighing on your mind?",
+      "Thank you for sharing that with me. It takes courage to be open about your feelings. How has this been affecting your daily life?",
+      "I can sense there's a lot going on for you right now. What would feel most supportive for you in this moment?",
+      "That sounds really challenging. You're being so brave by talking about this. What do you think might help you feel more grounded?",
+      "I appreciate your honesty. Sometimes just naming our feelings can be the first step toward healing. How are you taking care of yourself through this?",
+      "It sounds like you're going through a difficult time, and I'm here with you. What has helped you cope with similar feelings before?",
+      "You're showing real self-awareness by recognizing these patterns. That's actually a sign of growth. What small step could you take today to be kind to yourself?",
+      "I notice the strength in your words, even when you're struggling. What would you say to a friend who was going through something similar?",
+      "Your feelings make complete sense given what you've shared. How can we work together to help you feel more supported?",
+      "Thank you for trusting me with this. You deserve care and compassion, especially from yourself. What does self-compassion look like for you today?"
     ];
     
     return responses[Math.floor(Math.random() * responses.length)];
@@ -80,8 +82,8 @@ const ChatInterface = ({ onNewEntry }: ChatInterfaceProps) => {
       setIsTyping(false);
 
       // Create journal entry from conversation
-      const conversationContent = `${input}\n\nTherapist Response: ${aiResponse.text}`;
-      onNewEntry(conversationContent, 5); // Default mood of 5, you can add mood selection
+      const conversationContent = `${input}\n\nRiceball's Response: ${aiResponse.text}`;
+      onNewEntry(conversationContent, 5);
     }, 1500);
   };
 
@@ -92,14 +94,21 @@ const ChatInterface = ({ onNewEntry }: ChatInterfaceProps) => {
     }
   };
 
+  // Cute girl avatar component
+  const RiceballAvatar = () => (
+    <div className="w-8 h-8 bg-gradient-to-br from-pink-200 to-purple-300 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+      <span className="text-xs">🌸</span>
+    </div>
+  );
+
   return (
     <Card className="h-[600px] flex flex-col bg-gradient-to-br from-blue-50 to-indigo-50 border-0 shadow-lg">
       <div className="p-4 border-b bg-white/50 backdrop-blur-sm rounded-t-lg">
         <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-          <Bot className="w-5 h-5 text-indigo-600" />
-          Your AI Therapist
+          <RiceballAvatar />
+          Riceball - Your AI Therapist
         </h3>
-        <p className="text-sm text-gray-600">A safe space for your thoughts</p>
+        <p className="text-sm text-gray-600">A safe, judgment-free space for your thoughts</p>
       </div>
       
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -116,13 +125,19 @@ const ChatInterface = ({ onNewEntry }: ChatInterfaceProps) => {
               }`}
             >
               <div className="flex items-start gap-2">
-                {message.sender === 'ai' && <Bot className="w-4 h-4 mt-0.5 text-indigo-600" />}
-                {message.sender === 'user' && <User className="w-4 h-4 mt-0.5" />}
-                <p className="text-sm leading-relaxed">{message.text}</p>
+                {message.sender === 'ai' && <RiceballAvatar />}
+                {message.sender === 'user' && (
+                  <div className="w-6 h-6 bg-indigo-800 rounded-full flex items-center justify-center">
+                    <User className="w-3 h-3" />
+                  </div>
+                )}
+                <div className="flex-1">
+                  <p className="text-sm leading-relaxed">{message.text}</p>
+                  <p className="text-xs opacity-70 mt-1">
+                    {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
               </div>
-              <p className="text-xs opacity-70 mt-1">
-                {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-              </p>
             </div>
           </div>
         ))}
@@ -131,7 +146,7 @@ const ChatInterface = ({ onNewEntry }: ChatInterfaceProps) => {
           <div className="flex justify-start">
             <div className="bg-white/80 backdrop-blur-sm p-3 rounded-2xl max-w-[80%]">
               <div className="flex items-center gap-2">
-                <Bot className="w-4 h-4 text-indigo-600" />
+                <RiceballAvatar />
                 <div className="flex gap-1">
                   <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce"></div>
                   <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce [animation-delay:0.1s]"></div>
@@ -150,7 +165,7 @@ const ChatInterface = ({ onNewEntry }: ChatInterfaceProps) => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Share what's on your mind..."
+            placeholder="Share what's on your mind... I'm here to listen 💭"
             className="resize-none bg-white/80 backdrop-blur-sm border-gray-200 focus:border-indigo-300"
             rows={2}
           />
