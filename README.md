@@ -1,73 +1,30 @@
-# Welcome to your Lovable project
+# Riceball AI - your personal therapist!
 
-## Project info
+An AI therapist and personal analytics app that is meant to be your diary, recording your daily conversaitons and emotional highs and lows. Beyond offering emotional support and advice, it organizes your reflections into intelligent journal entries and uses your input to build a rich psychological profile over time. The app identifies key personality traits (like MBTI and attachment style), recurring challenges, emotional patterns, and your unique strengths and growth areas. It also generates trend reports to help you visualize your mental and emotional journey - making it a powerful tool for both healing and self-awareness. It logs your conversations, tracks your mental wellness, and provides actionable advice over time.
 
-**URL**: https://lovable.dev/projects/73df8da6-8740-4e6a-9040-88deba51b318
+## ✨ Features
 
-## How can I edit this code?
+- **Daily AI Conversations**: Talk to an empathetic AI therapist trained to understand and guide you.
+- **Smart Journaling**: Automatically saves and categorizes each session into a journal entry.
+- **Mood & Topic Analytics**: Tracks your emotional trends, the topics you frequently seek help with, and how you evolve over time.
+- **Personal Growth Insights**: Highlights your strengths, areas for improvement, and patterns in your thinking or behavior.
+- **Privacy First**: Your personal data is stored locally or securely, depending on deployment preferences.
 
-There are several ways of editing your application.
+---
 
-**Use Lovable**
+## 🌐 Live Project UI Prototype 
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/73df8da6-8740-4e6a-9040-88deba51b318) and start prompting.
+**URL**: [https://lovable.dev/projects/73df8da6-8740-4e6a-9040-88deba51b318](https://lovable.dev/projects/73df8da6-8740-4e6a-9040-88deba51b318)
 
-Changes made via Lovable will be committed automatically to this repo.
+---
 
-**Use your preferred IDE**
+## 🛠 Tech Stack
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+This project is built using:
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/73df8da6-8740-4e6a-9040-88deba51b318) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- **React**
+- **TypeScript**
+- **Vite**
+- **Tailwind CSS**
+- **shadcn/ui**
+- **OpenAI GPT**
