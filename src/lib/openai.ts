@@ -1,7 +1,7 @@
 // Utility for interacting with OpenAI's API securely with rate limiting and error handling
 
 const API_URL = 'https://api.openai.com/v1/chat/completions';
-const API_KEY = "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";
+const API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 
 // Simple in-memory rate limiter
 let lastRequestTime = 0;

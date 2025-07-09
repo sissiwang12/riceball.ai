@@ -21,7 +21,7 @@ const ChatInterface = ({ onNewEntry }: ChatInterfaceProps) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hello! I'm here to listen and support you. How are you feeling today? What's on your mind?",
+      text: "Hi there! I'm Riceball, your personal therapist. I'm here to listen, support you, and help you reflect on your thoughts and feelings. How are you doing today? What's on your mind?",
       sender: 'ai',
       timestamp: new Date()
     }
@@ -83,14 +83,21 @@ const ChatInterface = ({ onNewEntry }: ChatInterfaceProps) => {
     }
   };
 
+  // Cute girl avatar component
+  const RiceballAvatar = () => (
+    <div className="w-8 h-8 bg-gradient-to-br from-pink-200 to-purple-300 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+      <span className="text-xs">🌸</span>
+    </div>
+  );
+
   return (
     <Card className="h-[600px] flex flex-col bg-gradient-to-br from-blue-50 to-indigo-50 border-0 shadow-lg">
       <div className="p-4 border-b bg-white/50 backdrop-blur-sm rounded-t-lg">
         <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-          <Bot className="w-5 h-5 text-indigo-600" />
-          Your AI Therapist
+          <RiceballAvatar />
+          Riceball - Your AI Therapist
         </h3>
-        <p className="text-sm text-gray-600">A safe space for your thoughts</p>
+        <p className="text-sm text-gray-600">A safe, judgment-free space for your thoughts</p>
       </div>
       
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -107,13 +114,19 @@ const ChatInterface = ({ onNewEntry }: ChatInterfaceProps) => {
               }`}
             >
               <div className="flex items-start gap-2">
-                {message.sender === 'ai' && <Bot className="w-4 h-4 mt-0.5 text-indigo-600" />}
-                {message.sender === 'user' && <User className="w-4 h-4 mt-0.5" />}
-                <p className="text-sm leading-relaxed">{message.text}</p>
+                {message.sender === 'ai' && <RiceballAvatar />}
+                {message.sender === 'user' && (
+                  <div className="w-6 h-6 bg-indigo-800 rounded-full flex items-center justify-center">
+                    <User className="w-3 h-3" />
+                  </div>
+                )}
+                <div className="flex-1">
+                  <p className="text-sm leading-relaxed">{message.text}</p>
+                  <p className="text-xs opacity-70 mt-1">
+                    {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
               </div>
-              <p className="text-xs opacity-70 mt-1">
-                {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-              </p>
             </div>
           </div>
         ))}
@@ -122,7 +135,7 @@ const ChatInterface = ({ onNewEntry }: ChatInterfaceProps) => {
           <div className="flex justify-start">
             <div className="bg-white/80 backdrop-blur-sm p-3 rounded-2xl max-w-[80%]">
               <div className="flex items-center gap-2">
-                <Bot className="w-4 h-4 text-indigo-600" />
+                <RiceballAvatar />
                 <div className="flex gap-1">
                   <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce"></div>
                   <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce [animation-delay:0.1s]"></div>
@@ -146,7 +159,7 @@ const ChatInterface = ({ onNewEntry }: ChatInterfaceProps) => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Share what's on your mind..."
+            placeholder="Share what's on your mind... I'm here to listen 💭"
             className="resize-none bg-white/80 backdrop-blur-sm border-gray-200 focus:border-indigo-300"
             rows={2}
           />
