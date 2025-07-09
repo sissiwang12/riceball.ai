@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
 import { Send, Bot, User } from 'lucide-react';
-import { sendMessageToOpenAI } from '@/lib/openai';
+import { sendMessageToAI } from '@/lib/chat';
 
 interface Message {
   id: string;
@@ -59,7 +59,7 @@ const ChatInterface = ({ onNewEntry }: ChatInterfaceProps) => {
         ...messages.map(m => ({ role: m.sender === 'user' ? 'user' : 'assistant', content: m.text })),
         { role: 'user', content: input }
       ];
-      const aiText = await sendMessageToOpenAI(chatHistory);
+      const aiText = await sendMessageToAI(chatHistory);
       const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
         text: aiText,
