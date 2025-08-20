@@ -18,7 +18,7 @@ I hope you find it useful! :)
 
 ## 🌐 Live Project UI Prototype 
 
-**URL**: [https://lovable.dev/projects/73df8da6-8740-4e6a-9040-88deba51b318](https://lovable.dev/projects/73df8da6-8740-4e6a-9040-88deba51b318)
+**URL**: [[https://lovable.dev/projects/73df8da6-8740-4e6a-9040-88deba51b318](https://lovable.dev/projects/73df8da6-8740-4e6a-9040-88deba51b318)](https://riceball-ai.lovable.app/)
 
 ---
 
