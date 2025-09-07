@@ -21,7 +21,7 @@ export async function sendMessageToOpenAI(messages: {role: string, content: stri
   // Add a system prompt to instruct the model to reply in no more than 3 sentences
   const systemPrompt = {
     role: 'system',
-    content: 'You are a helpful AI therapist. Please reply in no more than 3 sentences.'
+    content: 'You are a helpful AI therapist. Please make it concise and structured.'
   };
   const fullMessages = [systemPrompt, ...messages];
 
@@ -36,7 +36,7 @@ export async function sendMessageToOpenAI(messages: {role: string, content: stri
         model: 'gpt-4.1-nano',
         messages: fullMessages,
         temperature: 0.7,
-        max_tokens: 150 // Should be enough for 3 sentences
+        max_tokens: 500
       }),
     });
 
