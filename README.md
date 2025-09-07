@@ -1,6 +1,10 @@
 # Riceball AI - your personal therapist!
 
-An AI therapist and personal analytics app that is meant to be your diary, recording your daily conversaitons and emotional highs and lows. Beyond offering emotional support and advice, it organizes your reflections into intelligent journal entries and uses your input to build a rich psychological profile over time. The app identifies key personality traits (like MBTI and attachment style), recurring challenges, emotional patterns, and your unique strengths and growth areas. It also generates trend reports to help you visualize your mental and emotional journey - making it a powerful tool for both healing and self-awareness. It logs your conversations, tracks your mental wellness, and provides actionable advice over time.
+An AI therapist and personal analytics app that is meant to be your diary, recording your daily conversations and emotional highs and lows. Beyond offering emotional support and advice, it organizes your reflections into intelligent journal entries and uses your input to build a rich psychological profile over time. 
+
+The app identifies key personality traits (like MBTI and attachment style), recurring challenges, emotional patterns, and your unique strengths and growth areas. It also generates trend reports to help you visualize your mental and emotional journey - making it a powerful tool for self reflection. 
+
+I hope you find it useful! :)
 
 ## ✨ Features
 
@@ -14,7 +18,7 @@ An AI therapist and personal analytics app that is meant to be your diary, recor
 
 ## 🌐 Live Project UI Prototype 
 
-**URL**: [https://lovable.dev/projects/73df8da6-8740-4e6a-9040-88deba51b318](https://lovable.dev/projects/73df8da6-8740-4e6a-9040-88deba51b318)
+**URL**: (https://riceball-ai.lovable.app/)
 
 ---
 
