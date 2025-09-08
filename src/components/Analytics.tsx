@@ -1,16 +1,21 @@
-
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
-import { TrendingUp, Calendar, Heart, Target, Brain, Trophy, Lightbulb, Star } from 'lucide-react';
+import { TrendingUp, Calendar, Heart, Target, Brain, Trophy, Lightbulb, Star, Loader2 } from 'lucide-react';
 import { JournalEntry } from './JournalEntries';
+import { sendMessageToAI } from '@/lib/chat';
 
 interface AnalyticsProps {
   entries: JournalEntry[];
 }
 
 const Analytics = ({ entries }: AnalyticsProps) => {
+  const [currentChallenges, setCurrentChallenges] = useState<string[]>([]);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const lastAnalyzedUserMessage = useRef<string | null>(null);
+
   // Process mood data for charts
   const moodData = entries.reduce((acc, entry) => {
     const date = entry.date.toLocaleDateString();
@@ -60,12 +65,127 @@ const Analytics = ({ entries }: AnalyticsProps) => {
     { trait: 'Neuroticism', value: 40 },
   ];
 
-  const currentChallenges = [
-    'Work-life balance',
-    'Self-doubt',
-    'Time management',
-    'Social anxiety'
-  ];
+  // Extract user message from journal entry content
+  const extractUserMessage = (content: string): string | null => {
+    if (!content) return null;
+    // Journal entries contain: "user input\n\nTherapist Response: AI response"
+    const userInput = content.split('\n\nTherapist Response:')[0].trim();
+    return userInput || null;
+  };
+
+  // Analyze latest journal entry for current challenges
+  const analyzeCurrentChallenges = async (userMessage: string) => {
+    if (!userMessage) {
+      setCurrentChallenges([]);
+      return;
+    }
+
+    console.log('Analyzing new user message:', userMessage.substring(0, 50) + '...');
+    setIsAnalyzing(true);
+    setAnalysisError(null);
+
+    try {
+      const messages = [
+        {
+          role: 'system',
+          content: `You are a mental health AI assistant analyzing user messages to identify current challenges. 
+
+Your task is to analyze the user's message and identify 3-5 current challenges they might be facing based on their emotional state, concerns, or struggles mentioned.
+
+Guidelines:
+- Focus on emotional and mental health patterns
+- Be empathetic and supportive in your analysis
+- Keep each challenge description short (5-10 words max)
+- Use gentle, non-judgmental language
+- Look for themes like: anxiety, stress, relationships, work, self-doubt, loneliness, etc.
+- Return ONLY a JSON array of challenge strings, no other text
+
+Example output: ["Work-related stress", "Social anxiety", "Self-confidence issues", "Time management", "Sleep difficulties"]`
+        },
+        {
+          role: 'user',
+          content: `Analyze this user message and identify their current challenges: "${userMessage}"`
+        }
+      ];
+
+      const response = await sendMessageToAI(messages);
+      
+      // Try to parse the JSON response
+      let challenges;
+      try {
+        challenges = JSON.parse(response);
+      } catch {
+        // Fallback if JSON parsing fails
+        challenges = [
+          "Emotional processing",
+          "Self-reflection",
+          "Personal growth",
+          "Mental wellness",
+          "Life challenges"
+        ];
+      }
+
+      // Ensure we have an array of strings
+      if (!Array.isArray(challenges)) {
+        challenges = [
+          "Emotional processing",
+          "Self-reflection", 
+          "Personal growth",
+          "Mental wellness",
+          "Life challenges"
+        ];
+      }
+
+      setCurrentChallenges(challenges);
+      // Mark this user message as analyzed
+      lastAnalyzedUserMessage.current = userMessage;
+      console.log('Analysis complete for user message');
+    } catch (error: any) {
+      console.error('Error analyzing challenges:', error);
+      setAnalysisError(error.message);
+      // Set fallback challenges on error
+      setCurrentChallenges([
+        "Emotional processing",
+        "Self-reflection",
+        "Personal growth", 
+        "Mental wellness",
+        "Life challenges"
+      ]);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  // Only analyze when there's a new user message
+  useEffect(() => {
+    console.log('useEffect triggered');
+    console.log('Entries length:', entries.length);
+    console.log('Last analyzed user message:', lastAnalyzedUserMessage.current?.substring(0, 50) + '...');
+    
+    if (entries.length === 0) {
+      console.log('No entries, clearing challenges');
+      setCurrentChallenges([]);
+      lastAnalyzedUserMessage.current = null;
+      return;
+    }
+
+    const latestEntry = entries[entries.length - 1];
+    const userMessage = extractUserMessage(latestEntry.content);
+    
+    console.log('Latest user message:', userMessage?.substring(0, 50) + '...');
+    
+    // Only analyze if:
+    // 1. We have a valid user message, AND
+    // 2. The user message is different from what we last analyzed
+    console.log('Last analyzed user message:', lastAnalyzedUserMessage.current);
+    console.log('User message:', userMessage);
+    if (userMessage && lastAnalyzedUserMessage.current !== userMessage) {
+      console.log('New user message detected, analyzing...');
+      analyzeCurrentChallenges(userMessage);
+    } else {
+      console.log('Same user message or no user message, no analysis needed');
+    }
+  }, [entries.length]); // Only depend on entries.length
 
   const recentGrowth = [
     'Improved self-awareness',
@@ -191,14 +311,32 @@ const Analytics = ({ entries }: AnalyticsProps) => {
           <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
             <Target className="w-5 h-5 text-red-600" />
             Current Challenges
+            {isAnalyzing && <Loader2 className="w-4 h-4 animate-spin text-red-600" />}
           </h3>
           <div className="space-y-3">
-            {currentChallenges.map((challenge, index) => (
-              <div key={index} className="flex items-center gap-3 p-3 bg-white/60 rounded-lg">
-                <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                <span className="text-gray-700">{challenge}</span>
+            {isAnalyzing ? (
+              <div className="flex items-center gap-3 p-3 bg-white/60 rounded-lg">
+                <Loader2 className="w-4 h-4 animate-spin text-red-500" />
+                <span className="text-gray-700">Analyzing your latest conversation...</span>
               </div>
-            ))}
+            ) : currentChallenges.length > 0 ? (
+              currentChallenges.map((challenge, index) => (
+                <div key={index} className="flex items-center gap-3 p-3 bg-white/60 rounded-lg">
+                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                  <span className="text-gray-700">{challenge}</span>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-4 text-gray-500">
+                <p>No recent conversations to analyze.</p>
+                <p className="text-sm">Start chatting to see your current challenges!</p>
+              </div>
+            )}
+            {analysisError && (
+              <div className="text-sm text-red-600 bg-red-50 p-2 rounded">
+                Analysis error: {analysisError}
+              </div>
+            )}
           </div>
         </Card>
 
