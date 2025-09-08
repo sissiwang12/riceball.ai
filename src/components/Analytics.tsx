@@ -12,8 +12,20 @@ interface AnalyticsProps {
 
 const Analytics = ({ entries }: AnalyticsProps) => {
   const [currentChallenges, setCurrentChallenges] = useState<string[]>([]);
+  const [recentGrowth, setRecentGrowth] = useState<string[]>([]);
+  const [gratitudeMoments, setGratitudeMoments] = useState<string[]>([]);
+  const [personalInsights, setPersonalInsights] = useState<string[]>([]);
+  const [personalityData, setPersonalityData] = useState<Array<{trait: string, value: number}>>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isAnalyzingGrowth, setIsAnalyzingGrowth] = useState(false);
+  const [isAnalyzingGratitude, setIsAnalyzingGratitude] = useState(false);
+  const [isAnalyzingInsights, setIsAnalyzingInsights] = useState(false);
+  const [isAnalyzingPersonality, setIsAnalyzingPersonality] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [growthAnalysisError, setGrowthAnalysisError] = useState<string | null>(null);
+  const [gratitudeAnalysisError, setGratitudeAnalysisError] = useState<string | null>(null);
+  const [insightsAnalysisError, setInsightsAnalysisError] = useState<string | null>(null);
+  const [personalityAnalysisError, setPersonalityAnalysisError] = useState<string | null>(null);
   const lastAnalyzedUserMessage = useRef<string | null>(null);
 
   // Process mood data for charts
@@ -56,14 +68,6 @@ const Analytics = ({ entries }: AnalyticsProps) => {
     ? entries[entries.length - 1].mood - entries[entries.length - 2].mood
     : 0;
 
-  // Personality insights (mock data - in real app would be analyzed from conversations)
-  const personalityData = [
-    { trait: 'Openness', value: 75 },
-    { trait: 'Conscientiousness', value: 60 },
-    { trait: 'Extraversion', value: 45 },
-    { trait: 'Agreeableness', value: 80 },
-    { trait: 'Neuroticism', value: 40 },
-  ];
 
   // Extract user message from journal entry content
   const extractUserMessage = (content: string): string | null => {
@@ -156,6 +160,326 @@ Example output: ["Work-related stress", "Social anxiety", "Self-confidence issue
     }
   };
 
+  // Analyze latest journal entry for recent growth and milestones
+  const analyzeRecentGrowth = async (userMessage: string) => {
+    if (!userMessage) {
+      setRecentGrowth([]);
+      return;
+    }
+
+    console.log('Analyzing growth for user message:', userMessage.substring(0, 50) + '...');
+    setIsAnalyzingGrowth(true);
+    setGrowthAnalysisError(null);
+
+    try {
+      const messages = [
+        {
+          role: 'system',
+          content: `You are a mental health AI assistant analyzing user messages to identify recent growth and milestones. 
+
+Your task is to analyze the user's message and identify 3-5 positive growth areas, achievements, or milestones they've demonstrated based on their emotional state, insights, or progress mentioned.
+
+Guidelines:
+- Focus on positive developments and personal growth
+- Be encouraging and celebratory in your analysis
+- Keep each growth item short (5-10 words max)
+- Use positive, empowering language
+- Look for themes like: self-awareness, emotional regulation, coping skills, relationship improvements, goal progress, etc.
+- Return ONLY a JSON array of growth strings, no other text
+
+Example output: ["Improved self-awareness", "Better emotional regulation", "Increased gratitude practice", "Stronger coping skills", "Enhanced communication"]`
+        },
+        {
+          role: 'user',
+          content: `Analyze this user message and identify their recent growth and milestones: "${userMessage}"`
+        }
+      ];
+
+      const response = await sendMessageToAI(messages);
+      
+      // Try to parse the JSON response
+      let growth;
+      try {
+        growth = JSON.parse(response);
+      } catch {
+        // Fallback if JSON parsing fails
+        growth = [
+          "Improved self-awareness",
+          "Better emotional regulation",
+          "Increased gratitude practice",
+          "Stronger coping skills",
+          "Enhanced communication"
+        ];
+      }
+
+      // Ensure we have an array of strings
+      if (!Array.isArray(growth)) {
+        growth = [
+          "Improved self-awareness",
+          "Better emotional regulation",
+          "Increased gratitude practice",
+          "Stronger coping skills",
+          "Enhanced communication"
+        ];
+      }
+
+      setRecentGrowth(growth);
+      console.log('Growth analysis complete for user message');
+    } catch (error: any) {
+      console.error('Error analyzing growth:', error);
+      setGrowthAnalysisError(error.message);
+      // Set fallback growth on error
+      setRecentGrowth([
+        "Improved self-awareness",
+        "Better emotional regulation",
+        "Increased gratitude practice",
+        "Stronger coping skills",
+        "Enhanced communication"
+      ]);
+    } finally {
+      setIsAnalyzingGrowth(false);
+    }
+  };
+
+  // Analyze latest journal entry for gratitude moments
+  const analyzeGratitudeMoments = async (userMessage: string) => {
+    if (!userMessage) {
+      setGratitudeMoments([]);
+      return;
+    }
+
+    console.log('Analyzing gratitude for user message:', userMessage.substring(0, 50) + '...');
+    setIsAnalyzingGratitude(true);
+    setGratitudeAnalysisError(null);
+
+    try {
+      const messages = [
+        {
+          role: 'system',
+          content: `You are a mental health AI assistant analyzing user messages to identify gratitude moments and positive aspects of their life. 
+
+Your task is to analyze the user's message and identify 3-5 things they might be grateful for or positive aspects of their life based on their experiences, relationships, or circumstances mentioned.
+
+Guidelines:
+- Focus on positive aspects and things to be grateful for
+- Be warm and appreciative in your analysis
+- Keep each gratitude item short (2-6 words max)
+- Use simple, heartfelt language
+- Look for themes like: relationships, health, opportunities, experiences, support systems, personal qualities, etc.
+- Return ONLY a JSON array of gratitude strings, no other text
+
+Example output: ["Family support", "Good health", "Career opportunities", "Personal relationships", "Learning experiences"]`
+        },
+        {
+          role: 'user',
+          content: `Analyze this user message and identify gratitude moments and positive aspects: "${userMessage}"`
+        }
+      ];
+
+      const response = await sendMessageToAI(messages);
+      
+      // Try to parse the JSON response
+      let gratitude;
+      try {
+        gratitude = JSON.parse(response);
+      } catch {
+        // Fallback if JSON parsing fails
+        gratitude = [
+          "Family support",
+          "Good health",
+          "Career opportunities",
+          "Personal relationships",
+          "Learning experiences"
+        ];
+      }
+
+      // Ensure we have an array of strings
+      if (!Array.isArray(gratitude)) {
+        gratitude = [
+          "Family support",
+          "Good health",
+          "Career opportunities",
+          "Personal relationships",
+          "Learning experiences"
+        ];
+      }
+
+      setGratitudeMoments(gratitude);
+      console.log('Gratitude analysis complete for user message');
+    } catch (error: any) {
+      console.error('Error analyzing gratitude:', error);
+      setGratitudeAnalysisError(error.message);
+      // Set fallback gratitude on error
+      setGratitudeMoments([
+        "Family support",
+        "Good health",
+        "Career opportunities",
+        "Personal relationships",
+        "Learning experiences"
+      ]);
+    } finally {
+      setIsAnalyzingGratitude(false);
+    }
+  };
+
+  // Analyze latest journal entry for personal insights and affirmations
+  const analyzePersonalInsights = async (userMessage: string) => {
+    if (!userMessage) {
+      setPersonalInsights([]);
+      return;
+    }
+
+    console.log('Analyzing insights for user message:', userMessage.substring(0, 50) + '...');
+    setIsAnalyzingInsights(true);
+    setInsightsAnalysisError(null);
+
+    try {
+      const messages = [
+        {
+          role: 'system',
+          content: `You are a mental health AI assistant analyzing user messages to provide personal insights and affirmations. 
+
+Your task is to analyze the user's message and generate 3-5 personalized insights, affirmations, or encouraging observations about their mental health journey, patterns, or current state.
+
+Guidelines:
+- Focus on supportive and encouraging insights
+- Be empathetic and understanding in your analysis
+- Keep each insight short (8-15 words max)
+- Use warm, supportive language
+- Look for patterns like: emotional awareness, coping strategies, self-reflection, resilience, personal strengths, etc.
+- Return ONLY a JSON array of insight strings, no other text
+
+Example output: ["You're developing stronger emotional awareness", "Your self-reflection shows great courage", "You're building resilience through challenges", "Your honesty about feelings is admirable", "You're taking positive steps forward"]`
+        },
+        {
+          role: 'user',
+          content: `Analyze this user message and provide personal insights and affirmations: "${userMessage}"`
+        }
+      ];
+
+      const response = await sendMessageToAI(messages);
+      
+      // Try to parse the JSON response
+      let insights;
+      try {
+        insights = JSON.parse(response);
+      } catch {
+        // Fallback if JSON parsing fails
+        insights = [
+          "You're developing stronger emotional awareness",
+          "Your self-reflection shows great courage",
+          "You're building resilience through challenges",
+          "Your honesty about feelings is admirable",
+          "You're taking positive steps forward"
+        ];
+      }
+
+      // Ensure we have an array of strings
+      if (!Array.isArray(insights)) {
+        insights = [
+          "You're developing stronger emotional awareness",
+          "Your self-reflection shows great courage",
+          "You're building resilience through challenges",
+          "Your honesty about feelings is admirable",
+          "You're taking positive steps forward"
+        ];
+      }
+
+      setPersonalInsights(insights);
+      console.log('Insights analysis complete for user message');
+    } catch (error: any) {
+      console.error('Error analyzing insights:', error);
+      setInsightsAnalysisError(error.message);
+      // Set fallback insights on error
+      setPersonalInsights([
+        "You're developing stronger emotional awareness",
+        "Your self-reflection shows great courage",
+        "You're building resilience through challenges",
+        "Your honesty about feelings is admirable",
+        "You're taking positive steps forward"
+      ]);
+    } finally {
+      setIsAnalyzingInsights(false);
+    }
+  };
+
+  // Analyze latest journal entry for personality insights (Big Five)
+  const analyzePersonalityInsights = async (userMessage: string) => {
+    if (!userMessage) {
+      setPersonalityData([]);
+      return;
+    }
+
+    console.log('Analyzing personality for user message:', userMessage.substring(0, 50) + '...');
+    setIsAnalyzingPersonality(true);
+    setPersonalityAnalysisError(null);
+
+    try {
+      const messages = [
+        {
+          role: 'system',
+          content: `You are a mental health AI assistant analyzing user messages to assess personality traits using the Big Five model. 
+
+Your task is to analyze the user's message and provide personality trait scores (0-100) based on their communication style, emotional expression, and behavioral patterns.
+
+Guidelines:
+- Analyze the user's message for personality indicators
+- Score each Big Five trait from 0-100 based on evidence in their message
+- Be objective and evidence-based in your assessment
+- Consider communication style, emotional expression, social patterns, etc.
+- Return ONLY a JSON object with trait names as keys and scores as values
+- Use these exact trait names: Openness, Conscientiousness, Extraversion, Agreeableness, Neuroticism
+
+Example output: {"Openness": 75, "Conscientiousness": 60, "Extraversion": 45, "Agreeableness": 80, "Neuroticism": 40}`
+        },
+        {
+          role: 'user',
+          content: `Analyze this user message and provide Big Five personality trait scores: "${userMessage}"`
+        }
+      ];
+
+      const response = await sendMessageToAI(messages);
+      
+      // Try to parse the JSON response
+      let personalityScores;
+      try {
+        personalityScores = JSON.parse(response);
+      } catch {
+        // Fallback if JSON parsing fails
+        personalityScores = {
+          "Openness": 75,
+          "Conscientiousness": 60,
+          "Extraversion": 45,
+          "Agreeableness": 80,
+          "Neuroticism": 40
+        };
+      }
+
+      // Ensure we have valid scores and convert to array format
+      const traits = ['Openness', 'Conscientiousness', 'Extraversion', 'Agreeableness', 'Neuroticism'];
+      const personalityArray = traits.map(trait => ({
+        trait,
+        value: Math.max(0, Math.min(100, personalityScores[trait] || 50))
+      }));
+
+      setPersonalityData(personalityArray);
+      console.log('Personality analysis complete for user message');
+    } catch (error: any) {
+      console.error('Error analyzing personality:', error);
+      setPersonalityAnalysisError(error.message);
+      // Set fallback personality data on error
+      setPersonalityData([
+        { trait: 'Openness', value: 75 },
+        { trait: 'Conscientiousness', value: 60 },
+        { trait: 'Extraversion', value: 45 },
+        { trait: 'Agreeableness', value: 80 },
+        { trait: 'Neuroticism', value: 40 }
+      ]);
+    } finally {
+      setIsAnalyzingPersonality(false);
+    }
+  };
+
   // Only analyze when there's a new user message
   useEffect(() => {
     console.log('useEffect triggered');
@@ -163,8 +487,12 @@ Example output: ["Work-related stress", "Social anxiety", "Self-confidence issue
     console.log('Last analyzed user message:', lastAnalyzedUserMessage.current?.substring(0, 50) + '...');
     
     if (entries.length === 0) {
-      console.log('No entries, clearing challenges');
+      console.log('No entries, clearing all analysis data');
       setCurrentChallenges([]);
+      setRecentGrowth([]);
+      setGratitudeMoments([]);
+      setPersonalInsights([]);
+      setPersonalityData([]);
       lastAnalyzedUserMessage.current = null;
       return;
     }
@@ -180,26 +508,21 @@ Example output: ["Work-related stress", "Social anxiety", "Self-confidence issue
     console.log('Last analyzed user message:', lastAnalyzedUserMessage.current);
     console.log('User message:', userMessage);
     if (userMessage && lastAnalyzedUserMessage.current !== userMessage) {
-      console.log('New user message detected, analyzing...');
-      analyzeCurrentChallenges(userMessage);
+      console.log('New user message detected, analyzing all sections...');
+      // Run all five analyses in parallel
+      Promise.all([
+        analyzeCurrentChallenges(userMessage),
+        analyzeRecentGrowth(userMessage),
+        analyzeGratitudeMoments(userMessage),
+        analyzePersonalInsights(userMessage),
+        analyzePersonalityInsights(userMessage)
+      ]);
     } else {
       console.log('Same user message or no user message, no analysis needed');
     }
   }, [entries.length]); // Only depend on entries.length
 
-  const recentGrowth = [
-    'Improved self-awareness',
-    'Better emotional regulation',
-    'Increased gratitude practice'
-  ];
 
-  const gratitudeItems = [
-    'Family support',
-    'Good health',
-    'Career opportunities',
-    'Personal relationships',
-    'Learning experiences'
-  ];
 
   return (
     <div className="space-y-6">
@@ -262,21 +585,43 @@ Example output: ["Work-related stress", "Social anxiety", "Self-confidence issue
           <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
             <Brain className="w-5 h-5 text-purple-600" />
             Personality Insights (Big Five)
+            {isAnalyzingPersonality && <Loader2 className="w-4 h-4 animate-spin text-purple-600" />}
           </h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <RadarChart data={personalityData}>
-              <PolarGrid />
-              <PolarAngleAxis dataKey="trait" />
-              <PolarRadiusAxis angle={90} domain={[0, 100]} />
-              <Radar
-                name="Personality"
-                dataKey="value"
-                stroke="#8b5cf6"
-                fill="#8b5cf6"
-                fillOpacity={0.3}
-              />
-            </RadarChart>
-          </ResponsiveContainer>
+          {isAnalyzingPersonality ? (
+            <div className="h-[250px] flex items-center justify-center">
+              <div className="flex items-center gap-3 p-4 bg-white/60 rounded-lg">
+                <Loader2 className="w-5 h-5 animate-spin text-purple-500" />
+                <span className="text-gray-700">Analyzing personality traits...</span>
+              </div>
+            </div>
+          ) : personalityData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={250}>
+              <RadarChart data={personalityData}>
+                <PolarGrid />
+                <PolarAngleAxis dataKey="trait" />
+                <PolarRadiusAxis angle={90} domain={[0, 100]} />
+                <Radar
+                  name="Personality"
+                  dataKey="value"
+                  stroke="#8b5cf6"
+                  fill="#8b5cf6"
+                  fillOpacity={0.3}
+                />
+              </RadarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="h-[250px] flex items-center justify-center text-gray-500">
+              <div className="text-center">
+                <p>No recent conversations to analyze.</p>
+                <p className="text-sm">Start chatting to see your personality insights!</p>
+              </div>
+            </div>
+          )}
+          {personalityAnalysisError && (
+            <div className="text-sm text-red-600 bg-red-50 p-2 rounded mt-2">
+              Analysis error: {personalityAnalysisError}
+            </div>
+          )}
         </Card>
 
         <Card className="p-6 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
@@ -344,14 +689,32 @@ Example output: ["Work-related stress", "Social anxiety", "Self-confidence issue
           <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
             <Lightbulb className="w-5 h-5 text-green-600" />
             Recent Growth & Milestones
+            {isAnalyzingGrowth && <Loader2 className="w-4 h-4 animate-spin text-green-600" />}
           </h3>
           <div className="space-y-3">
-            {recentGrowth.map((growth, index) => (
-              <div key={index} className="flex items-center gap-3 p-3 bg-white/60 rounded-lg">
-                <Star className="w-4 h-4 text-yellow-500" />
-                <span className="text-gray-700">{growth}</span>
+            {isAnalyzingGrowth ? (
+              <div className="flex items-center gap-3 p-3 bg-white/60 rounded-lg">
+                <Loader2 className="w-4 h-4 animate-spin text-green-500" />
+                <span className="text-gray-700">Analyzing your growth patterns...</span>
               </div>
-            ))}
+            ) : recentGrowth.length > 0 ? (
+              recentGrowth.map((growth, index) => (
+                <div key={index} className="flex items-center gap-3 p-3 bg-white/60 rounded-lg">
+                  <Star className="w-4 h-4 text-yellow-500" />
+                  <span className="text-gray-700">{growth}</span>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-4 text-gray-500">
+                <p>No recent conversations to analyze.</p>
+                <p className="text-sm">Start chatting to see your growth milestones!</p>
+              </div>
+            )}
+            {growthAnalysisError && (
+              <div className="text-sm text-red-600 bg-red-50 p-2 rounded">
+                Analysis error: {growthAnalysisError}
+              </div>
+            )}
           </div>
         </Card>
       </div>
@@ -361,14 +724,32 @@ Example output: ["Work-related stress", "Social anxiety", "Self-confidence issue
         <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
           <Heart className="w-5 h-5 text-amber-600" />
           Gratitude Moments
+          {isAnalyzingGratitude && <Loader2 className="w-4 h-4 animate-spin text-amber-600" />}
         </h3>
         <div className="flex flex-wrap gap-2">
-          {gratitudeItems.map((item, index) => (
-            <Badge key={index} variant="secondary" className="bg-amber-100 text-amber-800 px-3 py-1">
-              {item}
-            </Badge>
-          ))}
+          {isAnalyzingGratitude ? (
+            <div className="flex items-center gap-2 p-3 bg-white/60 rounded-lg">
+              <Loader2 className="w-4 h-4 animate-spin text-amber-500" />
+              <span className="text-gray-700">Finding gratitude moments...</span>
+            </div>
+          ) : gratitudeMoments.length > 0 ? (
+            gratitudeMoments.map((item, index) => (
+              <Badge key={index} variant="secondary" className="bg-amber-100 text-amber-800 px-3 py-1">
+                {item}
+              </Badge>
+            ))
+          ) : (
+            <div className="text-center py-4 text-gray-500">
+              <p>No recent conversations to analyze.</p>
+              <p className="text-sm">Start chatting to see your gratitude moments!</p>
+            </div>
+          )}
         </div>
+        {gratitudeAnalysisError && (
+          <div className="text-sm text-red-600 bg-red-50 p-2 rounded mt-2">
+            Analysis error: {gratitudeAnalysisError}
+          </div>
+        )}
       </Card>
 
       {/* Personal Insights */}
@@ -376,25 +757,41 @@ Example output: ["Work-related stress", "Social anxiety", "Self-confidence issue
         <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
           <Target className="w-5 h-5 text-indigo-600" />
           Personal Insights & Affirmations
+          {isAnalyzingInsights && <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />}
         </h3>
         <div className="space-y-3 text-sm text-gray-700">
-          {entries.length === 0 ? (
-            <p>Start journaling to see personalized insights about your mood patterns and growth!</p>
-          ) : (
+          {isAnalyzingInsights ? (
+            <div className="flex items-center gap-3 p-3 bg-white/60 rounded-lg">
+              <Loader2 className="w-4 h-4 animate-spin text-indigo-500" />
+              <span className="text-gray-700">Generating personalized insights...</span>
+            </div>
+          ) : personalInsights.length > 0 ? (
             <>
               <div className="p-4 bg-white/60 rounded-lg border-l-4 border-indigo-500">
                 <p className="font-medium text-indigo-700 mb-2">Today's Affirmation:</p>
                 <p className="italic">"You are capable of growth and change. Every conversation is a step forward in your healing journey."</p>
               </div>
-              <p>• You've been consistently engaging with self-reflection through {entries.length} journal entries.</p>
-              <p>• Your average mood score is {averageMood}/5, showing {Number(averageMood) >= 3 ? 'positive' : 'challenging'} overall wellbeing.</p>
-              {moodTrend > 0 && <p>• Great news! Your mood has been trending upward recently.</p>}
-              {moodTrend < 0 && <p>• Your mood has dipped recently - consider what support you might need.</p>}
-              <p>• Regular journaling like this shows commitment to your mental health journey.</p>
-              <p>• You're developing stronger emotional awareness and coping strategies.</p>
+              {personalInsights.map((insight, index) => (
+                <div key={index} className="flex items-start gap-3 p-3 bg-white/60 rounded-lg">
+                  <div className="w-2 h-2 bg-indigo-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <span className="text-gray-700">{insight}</span>
+                </div>
+              ))}
             </>
+          ) : entries.length === 0 ? (
+            <p>Start journaling to see personalized insights about your mood patterns and growth!</p>
+          ) : (
+            <div className="text-center py-4 text-gray-500">
+              <p>No recent conversations to analyze.</p>
+              <p className="text-sm">Start chatting to see your personalized insights!</p>
+            </div>
           )}
         </div>
+        {insightsAnalysisError && (
+          <div className="text-sm text-red-600 bg-red-50 p-2 rounded mt-2">
+            Analysis error: {insightsAnalysisError}
+          </div>
+        )}
       </Card>
     </div>
   );
